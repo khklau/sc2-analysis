@@ -7,13 +7,13 @@ import os
 
 def find_topics():
     result = {}
-    topic_dir = os.path.join(os.path.dirname(__file__), 'topic')
+    topic_dir = os.path.join(os.path.dirname(__file__), 'map')
     for module in os.listdir(topic_dir):
         if module[0:2] == '__':
             continue
         elif module[-3:] == '.py':
             name = module[0:-3]
-            full_qualification = 'topic.' + name
+            full_qualification = 'map.' + name
             result[name] = full_qualification
     return result
 
