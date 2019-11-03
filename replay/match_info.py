@@ -3,7 +3,7 @@ from core.protocol import TopicProtocol
 from datetime import datetime
 import json
 from os.path import basename, join, splitext 
-import pprint
+from pprint import PrettyPrinter
 
 
 class MatchInfo(TopicProtocol):
@@ -13,6 +13,7 @@ class MatchInfo(TopicProtocol):
         output_file = self.module_name + '.json'
         self.output_path = join(self.opts.output_dir, output_file)
         self.match_info = {}
+        self.pp = PrettyPrinter(indent=2)
 
     def generate_replay_metadata(self, replay):
         self.match_info['metadata'] = {}
@@ -30,6 +31,15 @@ class MatchInfo(TopicProtocol):
         self.match_info['settings']['privacy'] = replay.attributes[16]['Game Privacy']
         self.match_info['settings']['locked_alliances'] = replay.attributes[16]['Locked Alliances']
         self.match_info['settings']['rules'] = replay.attributes[16]['Rules']
+
+    def generate_map_details(self, replay):
+        self.match_info['map'] = {}
+        self.match_info['map']['name'] = replay.map_name
+        self.match_info['map']['hash'] = replay.map_hash
+        description = replay.raw_data['replay.initData.backup']['game_description']
+        self.match_info['map']['author'] = description['map_author_name']
+        self.match_info['map']['size_x'] = description['map_size_x']
+        self.match_info['map']['size_y'] = description['map_size_y']
 
     def generate_time_details(self, replay):
         self.match_info['time'] = {}
@@ -61,6 +71,7 @@ class MatchInfo(TopicProtocol):
     def generate(self, replay):
         self.generate_replay_metadata(replay)
         self.generate_match_settings(replay)
+        self.generate_map_details(replay)
         self.generate_time_details(replay)
         self.generate_team_details(replay)
 
