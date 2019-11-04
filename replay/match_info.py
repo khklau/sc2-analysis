@@ -55,6 +55,7 @@ class MatchInfo(TopicProtocol):
             for player in team.players:
                 self.match_info['result'][team.number] = player.result
                 player_detail = {}
+                player_detail['player_id'] = player.pid
                 player_detail['name'] = player.detail_data['name']
                 player_detail['race'] = player.detail_data['race']
                 player_detail['color'] = player.attribute_data['Color']
