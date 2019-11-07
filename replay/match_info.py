@@ -43,6 +43,8 @@ class MatchInfo(TopicProtocol):
 
     def generate_time_details(self, replay):
         self.match_info['time'] = {}
+        self.match_info['time']['game_fps'] = replay.game_fps
+        self.match_info['time']['total_frames'] = replay.frames
         self.match_info['time']['start'] = replay.start_time.strftime('%Y%m%dT%H%M%S')
         self.match_info['time']['end'] = replay.end_time.strftime('%Y%m%dT%H%M%S')
         self.match_info['time']['time_zone'] = replay.time_zone
