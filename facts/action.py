@@ -9,6 +9,10 @@ ACTION_TYPES = frozenset({
     'Research',
     'Lift',
     'Land',
+    'Lower',
+    'Burrow',
+    'Halt',
+    'Cancel'
 })
 
 
