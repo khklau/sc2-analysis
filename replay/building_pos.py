@@ -1,6 +1,8 @@
 from core.protocol import TopicProtocol
 from facts.action import parse_action_string
 
+from sc2reader.data import UnitType
+
 import csv
 from os.path import basename, join, splitext
 from pprint import PrettyPrinter
@@ -17,6 +19,7 @@ class BuildingPos(TopicProtocol):
             'y_pos',
             'z_pos',
             'building_name',
+            'time_cost',
             'mineral_cost',
             'vespene_cost'
         ]
@@ -29,13 +32,19 @@ class BuildingPos(TopicProtocol):
     def generate(self, replay):
         event_names = set([event.name for event in replay.events])
         self.pp.pprint(event_names)
+        #self.pp.pprint(replay.__dict__)
         for event in replay.events:
-            if event.name == 'TargetPointCommandEvent':
+            if (event.name == 'TargetPointCommandEvent'
+                    or event.name == 'TargetUnitCommandEvent'
+                    or event.name == 'BasicCommandEvent'
+                    or event.name == 'UpdateTargetPointCommandEvent'
+                    or event.name == 'UpdateTargetUnitCommandEvent') and event.ability:
                 #self.pp.pprint(event.__dict__)
                 #self.pp.pprint(event.ability.__dict__)
-                if event.ability.build_unit:
-                    if event.ability.build_unit.is_building:
-                        (action, unit) = parse_action_string(event.ability.name)
+                if event.ability.build_unit and isinstance(event.ability.build_unit, UnitType):
+                    #self.pp.pprint(event.ability.build_unit.__dict__)
+                    (action, unit) = parse_action_string(event.ability.name)
+                    if event.ability.build_unit.is_building and action == 'Build':
                         details = {}
                         details['frame'] = event.frame
                         details['event_type'] = action
@@ -43,7 +52,8 @@ class BuildingPos(TopicProtocol):
                         details['x_pos'] = event.x
                         details['y_pos'] = event.y
                         details['z_pos'] = event.z
-                        details['building_name'] = unit
+                        details['building_name'] = event.ability.build_unit.name
+                        details['time_cost'] = event.ability.build_time
                         details['mineral_cost'] = event.ability.build_unit.minerals
                         details['vespene_cost'] = event.ability.build_unit.vespene
                         self.event_list.append(details)
