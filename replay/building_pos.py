@@ -30,19 +30,9 @@ class BuildingPos(TopicProtocol):
         self.pp = PrettyPrinter(indent=2)
 
     def generate(self, replay):
-        event_names = set([event.name for event in replay.events])
-        self.pp.pprint(event_names)
-        #self.pp.pprint(replay.__dict__)
         for event in replay.events:
-            if (event.name == 'TargetPointCommandEvent'
-                    or event.name == 'TargetUnitCommandEvent'
-                    or event.name == 'BasicCommandEvent'
-                    or event.name == 'UpdateTargetPointCommandEvent'
-                    or event.name == 'UpdateTargetUnitCommandEvent') and event.ability:
-                #self.pp.pprint(event.__dict__)
-                #self.pp.pprint(event.ability.__dict__)
+            if event.name == 'TargetPointCommandEvent' and event.ability:
                 if event.ability.build_unit and isinstance(event.ability.build_unit, UnitType):
-                    #self.pp.pprint(event.ability.build_unit.__dict__)
                     (action, unit) = parse_action_string(event.ability.name)
                     if event.ability.build_unit.is_building and action == 'Build':
                         details = {}
