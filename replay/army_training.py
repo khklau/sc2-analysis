@@ -27,7 +27,6 @@ class ArmyTraining(TopicProtocol):
         self.pp = PrettyPrinter(indent=2)
 
     def generate(self, replay):
-        event_names = set([event.name for event in replay.events])
         for event in replay.events:
             if event.name == 'BasicCommandEvent' and event.ability:
                 if event.ability.build_unit and isinstance(event.ability.build_unit, UnitType):
