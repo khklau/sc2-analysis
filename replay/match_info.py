@@ -20,17 +20,20 @@ class MatchInfo(TopicProtocol):
         self.match_info['metadata']['replay_release'] = replay.release_string
 
     def generate_match_settings(self, replay):
+        description = replay.raw_data['replay.initData.backup']['game_description']
+        game_options = description['game_options']
         self.match_info['settings'] = {}
-        self.match_info['settings']['category'] = replay.category
-        self.match_info['settings']['is_battle_net'] = replay.battle_net
-        self.match_info['settings']['is_competitive'] = replay.competitive
-        self.match_info['settings']['is_cooperative'] = replay.cooperative
-        self.match_info['settings']['type'] = replay.type
-        self.match_info['settings']['speed'] = replay.speed
-        self.match_info['settings']['duration'] = replay.attributes[16]['Game Duration']
-        self.match_info['settings']['privacy'] = replay.attributes[16]['Game Privacy']
-        self.match_info['settings']['locked_alliances'] = replay.attributes[16]['Locked Alliances']
-        self.match_info['settings']['rules'] = replay.attributes[16]['Rules']
+        self.match_info['settings']['is_private'] = replay.is_private
+        self.match_info['settings']['is_ladder'] = game_options['amm'] != 0
+        self.match_info['settings']['is_battle_net'] = game_options['battle_net'] != 0
+        self.match_info['settings']['is_competitive'] = game_options['competitive'] != 0
+        self.match_info['settings']['is_cooperative'] = game_options['cooperative'] != 0
+        self.match_info['settings']['is_practice'] = game_options['practice'] != 0
+        self.match_info['settings']['has_locked_teams'] = game_options['lock_teams'] != 0
+        self.match_info['settings']['speed'] = description['game_speed']
+        self.match_info['settings']['is_realtime'] = description['is_realtime_mode'] != 0
+        lobby_state = replay.raw_data['replay.initData.backup']['lobby_state']
+        self.match_info['settings']['duration'] = lobby_state['game_duration']
 
     def generate_map_details(self, replay):
         self.match_info['map'] = {}
@@ -60,10 +63,9 @@ class MatchInfo(TopicProtocol):
                 player_detail['player_id'] = player.pid
                 player_detail['name'] = player.detail_data['name']
                 player_detail['race'] = player.detail_data['race']
-                player_detail['color'] = player.attribute_data['Color']
-                player_detail['controller'] = player.attribute_data['Controller']
-                player_detail['difficulty'] = player.attribute_data['Difficulty']
-                player_detail['handicap'] = player.attribute_data['Handicap']
+                #player_detail['controller'] = player.attribute_data['Controller']
+                #player_detail['difficulty'] = player.attribute_data['Difficulty']
+                #player_detail['handicap'] = player.attribute_data['Handicap']
                 player_detail['battle_net'] = {}
                 player_detail['battle_net']['name'] = player.detail_data['bnet']['program_id'].decode("utf-8")
                 player_detail['battle_net']['id'] = player.detail_data['bnet']['uid']
