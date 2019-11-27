@@ -63,9 +63,6 @@ class MatchInfo(TopicProtocol):
                 player_detail['player_id'] = player.pid
                 player_detail['name'] = player.detail_data['name']
                 player_detail['race'] = player.detail_data['race']
-                #player_detail['controller'] = player.attribute_data['Controller']
-                #player_detail['difficulty'] = player.attribute_data['Difficulty']
-                #player_detail['handicap'] = player.attribute_data['Handicap']
                 player_detail['battle_net'] = {}
                 player_detail['battle_net']['name'] = player.detail_data['bnet']['program_id'].decode("utf-8")
                 player_detail['battle_net']['id'] = player.detail_data['bnet']['uid']
