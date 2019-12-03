@@ -34,14 +34,16 @@ class BuildingPos(TopicProtocol):
         self.pp = PrettyPrinter(indent=2)
 
     def generate(self, replay):
-        event_names = set([event.name for event in replay.events])
         for event in replay.events:
             if event.name == 'UnitInitEvent':
-                self.process_init_event(event)
+                if event.unit._type_class.is_building:
+                    self.process_init_event(event)
             elif event.name == 'UnitDoneEvent' or event.name == 'UnitTypeChangeEvent':
-                self.process_unit_event(event)
+                if event.unit._type_class.is_building:
+                    self.process_unit_event(event)
             elif event.name == 'UnitDiedEvent':
-                self.process_died_event(event)
+                if event.unit._type_class.is_building:
+                    self.process_died_event(event)
             elif event.name == 'TargetPointCommandEvent' and event.ability:
                 if event.ability.build_unit and isinstance(event.ability.build_unit, UnitType):
                     (action, unit) = parse_action_string(event.ability.name)
@@ -50,8 +52,6 @@ class BuildingPos(TopicProtocol):
                         self.process_build_event(event, action)
 
     def process_init_event(self, event):
-        if not event.unit._type_class.is_building:
-            return
         event_type = parse_unit_event_string(event.name)
         details = {}
         details['frame'] = event.frame
@@ -67,8 +67,6 @@ class BuildingPos(TopicProtocol):
         self.active_units[event.unit_id] = details
 
     def process_unit_event(self, event):
-        if not event.unit._type_class.is_building:
-            return
         if event.unit_id in self.active_units:
             active_unit = self.active_units[event.unit_id]
             event_type = parse_unit_event_string(event.name)
@@ -87,8 +85,6 @@ class BuildingPos(TopicProtocol):
             self.error_list.append(f'Unit {event.unit.name} has changed but has an unknown ID {event.unit_id}')
 
     def process_died_event(self, event):
-        if not event.unit._type_class.is_building:
-            return
         self.process_unit_event(event)
         if event.unit_id in self.active_units:
             del self.active_units[event.unit_id]
@@ -97,7 +93,7 @@ class BuildingPos(TopicProtocol):
         details = {}
         details['frame'] = event.frame
         details['event_type'] = action
-        details['player_id'] = event.pid
+        details['player_id'] = event.player.pid
         details['unit_id'] = 0
         details['building_name'] = event.ability.build_unit.name
         details['x_pos'] = event.x
@@ -114,7 +110,7 @@ class BuildingPos(TopicProtocol):
                 writer.writerow(event)
         if len(self.error_list) > 0:
             with open(self.error_path, 'wt') as handle:
-                handle.writelines(self.error_list)
+                handle.writelines(err + '\n' for err in self.error_list)
 
 
 def init(opts):
