@@ -33,9 +33,9 @@ class ArmyTraining(TopicProtocol):
 
     def generate(self, replay):
         for event in replay.events:
-            if event.name == 'UnitBornEvent':
+            if event.name == 'UnitBornEvent' or event.name == 'UnitInitEvent':
                 if event.unit._type_class.is_army:
-                    self.process_init_event(event)
+                    self.process_born_event(event)
             elif event.name == 'UnitTypeChangeEvent':
                 if event.unit._type_class.is_army:
                     self.process_unit_event(event)
@@ -48,7 +48,7 @@ class ArmyTraining(TopicProtocol):
                     if event.ability.build_unit.is_army and action == 'Train':
                         self.process_train_event(event, action)
 
-    def process_init_event(self, event):
+    def process_born_event(self, event):
         event_type = parse_unit_event_string(event.name)
         details = {}
         details['frame'] = event.frame
